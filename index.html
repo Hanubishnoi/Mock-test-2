@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Mock Test</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#f2f3f7}
+
+.header{
+position:fixed;
+top:0;
+left:0;
+width:98%;
+z-index:1000;
+background:#2c5f8a;
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.topRight{text-align:right}
+
+
+
+.main{
+display:flex;
+padding:5px;
+margin-top:60px;   /* important */
+}
+
+
+.left{
+width:70%;
+background:white;
+padding:20px;
+border-radius:6px;
+}
+
+.right{
+width:30%;
+margin-left:15px;
+background:white;
+padding:15px;
+border-radius:6px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(40px,1fr));
+gap:6px;
+}
+
+.grid button{
+height:40px;
+border:none;
+background:#ddd;
+cursor:pointer;
+font-weight:bold;
+}
+
+.answered{background:#4caf50;color:white}
+
+.options label{
+display:block;
+margin:12px 0;
+padding:6px;
+cursor:pointer;
+border-radius:4px;
+}
+
+.correctOpt{background:#008000;color:white;} 
+.wrongOpt{background:#f44336;color:white}
+.notAttemptYellow{background:#ffeb3b;}
+
+.controls{margin-top:20px}
+
+button{padding:8px 12px;cursor:pointer}
+
+.resultBox{
+display:none;
+background:white;
+margin:80px 20px 20px 20px;
+padding:20px;
+border-radius:6px;
+}
+#question{
+white-space:pre-line;
+}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+<div>
+<strong>Mock Test Portal</strong><br>
+Candidate: Riya
+</div>
+<div class="topRight">
+Total Marks: <span id="totalMarks"></span><br>
+Time Left: <span id="timer">00:00</span>
+</div>
+</div>
+
+<div class="main" id="examArea">
+
+<div class="left">
+<h3 id="question"></h3>
+<div id="options" class="options"></div>
+
+<div class="controls">
+<button onclick="saveNext()">Save & Next</button>
+</div>
+</div>
+
+<div class="right">
+<h4>Questions</h4>
+<div class="grid" id="palette"></div>
+<br>
+<button onclick="submitExam()">Submit Test</button>
+</div>
+
+</div>
+
+<div class="resultBox" id="resultBox"></div>
+
+<script>
+
+/* ========= QUESTIONS ========= */
+const examDurationMinutes = 60;
+
+const questions = [
+
+
+{"question":"Which criminological theory focuses on the role of social environment in causing crime?","options":["Biological theory","Ecological theory","Routine activity theory","Control theory"],"answer":1},
+
+{"question":"Which institution in India is primarily responsible for maintaining law and order?","options":["Judiciary","Police","Prison department","Forensic laboratory"],"answer":1},
+
+{"question":"Match LIST-I with LIST-II\nLIST-I\nA. Classical School\nB. Positive School\nC. Chicago School\nD. Conflict Theory\nLIST-II\nI. Social ecology\nII. Biological factors\nIII. Rational choice\nIV. Power and inequality","options":["A-III,B-II,C-I,D-IV","A-II,B-III,C-IV,D-I","A-I,B-II,C-III,D-IV","A-IV,B-I,C-II,D-III"],"answer":0},
+
+{"question":"Which crime involves illegal copying of software or digital media?","options":["Cyber piracy","Identity theft","Phishing","Spoofing"],"answer":0},
+
+{"question":"Which act deals with prevention of corruption in India?","options":["Prevention of Corruption Act","Dowry Prohibition Act","Domestic Violence Act","Child Labour Act"],"answer":0},
+
+{"question":"Arrange the following stages of criminal investigation:\nA. Registration of FIR\nB. Investigation\nC. Filing of charge sheet\nD. Trial","options":["A,B,C,D","B,A,C,D","A,C,B,D","B,C,A,D"],"answer":0},
+
+{"question":"Which concept refers to unlawful killing of another human being?","options":["Fraud","Murder","Cyber crime","Forgery"],"answer":1},
+
+{"question":"Which branch of criminology studies juvenile offenders?","options":["Juvenology","Penology","Victimology","Criminometry"],"answer":0},
+
+{"question":"Which theory explains crime through peer group influence?","options":["Differential association theory","Routine activity theory","Control theory","Conflict theory"],"answer":0},
+
+{"question":"Which organization works for international police cooperation?","options":["Interpol","NCRB","CBI","RAW"],"answer":0},
+
+{"question":"Which punishment is the most severe in criminal law?","options":["Fine","Probation","Death penalty","Community service"],"answer":2},
+
+{"question":"Which act provides free legal services to weaker sections in India?","options":["Legal Services Authorities Act","Evidence Act","Criminal Procedure Code","Civil Procedure Code"],"answer":0},
+
+{"question":"Which crime involves taking property without consent?","options":["Theft","Fraud","Cyber crime","Forgery"],"answer":0},
+
+{"question":"Which concept refers to fear of becoming a victim of crime?","options":["Victimization","Fear of crime","Deterrence","Recidivism"],"answer":1},
+
+{"question":"Which institution supervises prisons in India?","options":["Prison department","Election Commission","Finance Commission","Planning Commission"],"answer":0},
+
+{"question":"Arrange the following crimes from least to most serious:\nA. Theft\nB. Robbery\nC. Murder\nD. Assault","options":["A,D,B,C","D,A,B,C","A,B,D,C","D,B,A,C"],"answer":0},
+
+{"question":"Which criminological concept studies crime trends using statistics?","options":["Criminometry","Penology","Victimology","Psychology"],"answer":0},
+
+{"question":"Which crime involves deception for financial gain?","options":["Fraud","Assault","Kidnapping","Arson"],"answer":0},
+
+{"question":"Which act deals with juvenile justice in India?","options":["Juvenile Justice Act","POCSO Act","Domestic Violence Act","Dowry Act"],"answer":0},
+
+{"question":"Which criminological theory focuses on labeling individuals as criminals by society?","options":["Labeling theory","Control theory","Routine activity theory","Strain theory"],"answer":0},
+
+{"question":"Which crime involves damaging property by fire?","options":["Arson","Burglary","Robbery","Fraud"],"answer":0},
+
+{"question":"Criminology is best defined as:","options":["Study of punishment only","Scientific study of crime, criminals and criminal justice system","Study of police administration","Study of prisons"],"answer":1},
+
+{"question":"Who among the following is considered the founder of Classical School of Criminology?","options":["Cesare Beccaria","Cesare Lombroso","Enrico Ferri","Edwin Sutherland"],"answer":0},
+
+{"question":"Which theory explains crime through gap between cultural goals and institutional means?","options":["Control theory","Strain theory","Routine activity theory","Conflict theory"],"answer":1},
+
+{"question":"The concept of 'White Collar Crime' was introduced by:","options":["Robert Merton","Edwin Sutherland","Durkheim","Howard Becker"],"answer":1},
+
+{"question":"Which concept refers to repeated offending by the same individual?","options":["Victimization","Recidivism","Deterrence","Probation"],"answer":1},
+
+{"question":"Which organization publishes the annual report 'Crime in India'?","options":["CBI","NCRB","RAW","IB"],"answer":1},
+
+{"question":"Which committee examined prison reforms in India?","options":["Mulla Committee","Sarkaria Committee","Punchhi Committee","Finance Commission"],"answer":0},
+
+{"question":"Which punishment philosophy focuses on reforming offenders?","options":["Retribution","Deterrence","Rehabilitation","Capital punishment"],"answer":2},
+
+{"question":"Victimology refers to the study of:","options":["Victims of crime","Criminal law","Police system","Prison administration"],"answer":0},
+
+{"question":"Which crime involves unauthorized access to computer systems?","options":["Phishing","Hacking","Cyber stalking","Spoofing"],"answer":1},
+
+{"question":"Green criminology studies:","options":["Cyber crimes","Environmental crimes","Corporate crimes","Juvenile crimes"],"answer":1},
+
+{"question":"Which act protects children from sexual offences in India?","options":["POCSO Act","Juvenile Justice Act","Dowry Act","Domestic Violence Act"],"answer":0},
+
+{"question":"Which punishment involves monetary payment to the court?","options":["Fine","Probation","Parole","Execution"],"answer":0},
+
+{"question":"Which crime involves sending fraudulent emails to obtain confidential information?","options":["Phishing","Spoofing","Cyber stalking","Hacking"],"answer":0},
+
+{"question":"Which concept refers to prison culture adopted by inmates?","options":["Enculturation","Prisonization","Institutionalization","Rehabilitation"],"answer":1},
+
+{"question":"Arrange the following criminologists chronologically:\nA. Cesare Beccaria\nB. Cesare Lombroso\nC. Enrico Ferri\nD. Edwin Sutherland","options":["A,B,C,D","B,A,C,D","A,C,B,D","B,C,A,D"],"answer":0},
+
+{"question":"Which criminologist proposed the concept of 'Anomie'?","options":["Durkheim","Merton","Becker","Hirschi"],"answer":0},
+
+{"question":"Which theory explains crime through social learning?","options":["Differential association theory","Control theory","Routine activity theory","Conflict theory"],"answer":0},
+
+{"question":"Which institution deals with juvenile offenders in India?","options":["Juvenile Justice Board","High Court","Civil Court","Lok Adalat"],"answer":0},
+
+{"question":"Which act abolished bonded labour in India?","options":["Factories Act","Bonded Labour System Abolition Act","Trade Union Act","Industrial Disputes Act"],"answer":1},
+
+{"question":"Which committee examined criminal justice reforms in India?","options":["Malimath Committee","Ribeiro Committee","Mulla Committee","Padmanabha Committee"],"answer":0},
+
+{"question":"Which crime includes bribery and corruption?","options":["White collar crime","Cyber crime","Street crime","Juvenile crime"],"answer":0},
+
+{"question":"Which punishment philosophy focuses on revenge?","options":["Retribution","Deterrence","Rehabilitation","Restorative justice"],"answer":0},
+
+{"question":"Which theory links crime with weak social bonds?","options":["Control theory","Strain theory","Routine activity theory","Conflict theory"],"answer":0},
+
+{"question":"Which institution ensures legal aid to poor citizens in India?","options":["Legal Services Authority","Election Commission","NCRB","CBI"],"answer":0},
+
+{"question":"Which act established Lok Adalat?","options":["Legal Services Authorities Act","Civil Procedure Code","Criminal Procedure Code","Evidence Act"],"answer":0},
+
+{"question":"Which crime involves illegal trade networks?","options":["Organized crime","Street crime","Juvenile crime","Cyber crime"],"answer":0},
+
+{"question":"Which system includes police, courts and prisons?","options":["Criminal justice system","Political system","Economic system","Education system"],"answer":0},
+
+{"question":"Which crime involves online harassment?","options":["Cyber stalking","Fraud","Hacking","Identity theft"],"answer":0},
+
+{"question":"Which branch studies measurement of crime?","options":["Criminometry","Penology","Victimology","Forensic science"],"answer":0},
+
+{"question":"Which punishment allows offender to remain in community under supervision?","options":["Probation","Execution","Fine","Life imprisonment"],"answer":0},
+
+{"question":"Which institution investigates major crimes in India?","options":["CBI","RAW","IB","NCRB"],"answer":0},
+
+{"question":"Match LIST-I with LIST-II\nLIST-I\nA. Penology\nB. Victimology\nC. Criminology\nD. Forensic Science\nLIST-II\nI. Study of punishment\nII. Study of victims\nIII. Study of crime\nIV. Scientific evidence examination","options":["A-I,B-II,C-III,D-IV","A-II,B-III,C-I,D-IV","A-III,B-I,C-IV,D-II","A-I,B-III,C-II,D-IV"],"answer":0},
+
+{"question":"Arrange the stages of criminal justice process:\nA. Arrest\nB. Investigation\nC. Trial\nD. Sentencing","options":["A,B,C,D","B,A,C,D","A,C,B,D","B,C,A,D"],"answer":0},
+
+{"question":"Which criminologist proposed labeling theory?","options":["Howard Becker","Durkheim","Merton","Hirschi"],"answer":0},
+
+{"question":"Which criminologist developed strain theory?","options":["Robert Merton","Durkheim","Sutherland","Becker"],"answer":0},
+
+{"question":"Which concept refers to crimes committed using computers?","options":["Cyber crime","Corporate crime","Organized crime","Street crime"],"answer":0},
+
+{"question":"Which punishment releases a prisoner conditionally before sentence completion?","options":["Parole","Fine","Execution","Detention"],"answer":0},
+
+{"question":"Which law deals with domestic violence in India?","options":["Protection of Women from Domestic Violence Act","Dowry Act","Child Marriage Act","Hindu Marriage Act"],"answer":0},
+
+{"question":"Which concept refers to fear of punishment preventing crime?","options":["Deterrence","Retribution","Rehabilitation","Restitution"],"answer":0},
+
+{"question":"Which theory explains crime through opportunity and lack of guardianship?","options":["Routine activity theory","Strain theory","Control theory","Labeling theory"],"answer":0},
+
+{"question":"Which crime harms environment?","options":["Environmental crime","Cyber crime","Corporate crime","Street crime"],"answer":0},
+
+{"question":"Which institution supervises probation?","options":["Probation service","Police station","Court","Prison"],"answer":0},
+
+{"question":"Which crime involves stealing personal identity online?","options":["Identity theft","Hacking","Phishing","Spoofing"],"answer":0},
+
+{"question":"Which criminological school emphasized biological explanation of crime?","options":["Positive school","Classical school","Chicago school","Conflict school"],"answer":0},
+
+{"question":"Which concept refers to criminal subculture?","options":["Subculture theory","Routine activity theory","Control theory","Conflict theory"],"answer":0},
+
+{"question":"Which crime includes financial scams?","options":["White collar crime","Street crime","Cyber crime","Organized crime"],"answer":0},
+
+{"question":"Which institution maintains fingerprints and forensic records?","options":["Forensic laboratory","Police station","Court","Prison"],"answer":0},
+
+{"question":"Which theory links crime with inequality and power?","options":["Conflict theory","Routine activity theory","Control theory","Biological theory"],"answer":0},
+
+{"question":"Which concept refers to crimes committed by corporations?","options":["Corporate crime","Cyber crime","Street crime","Juvenile crime"],"answer":0},
+
+{"question":"Which punishment aims to repair harm between offender and victim?","options":["Restorative justice","Retribution","Deterrence","Execution"],"answer":0},
+
+{"question":"Which crime includes kidnapping for exploitation?","options":["Human trafficking","Cyber crime","Corporate crime","Fraud"],"answer":0},
+
+{"question":"Which criminological concept studies prison administration?","options":["Penology","Victimology","Criminometry","Psychology"],"answer":0},
+
+{"question":"Which institution ensures fair trial?","options":["Judiciary","Police","Prison","Forensic lab"],"answer":0}
+
+
+];
+
+/* ============================= */
+
+let current=0;
+let userAnswers=[];
+let time=examDurationMinutes*60;
+let timerInterval;
+document.getElementById("totalMarks").innerText = questions.length*4;
+
+function loadQuestion(){
+document.getElementById("question").innerText =
+"Q"+(current+1)+": "+questions[current].question;
+
+let html="";
+questions[current].options.forEach((opt,i)=>{
+html+=`
+<label>
+<input type="radio" name="opt" value="${i}" onclick="toggleOption(this)">
+${opt}
+</label>`;
+});
+document.getElementById("options").innerHTML=html;
+
+if(userAnswers[current]!=undefined){
+document.querySelectorAll("input[name=opt]")[userAnswers[current]].checked=true;
+}
+}
+
+function toggleOption(radio){
+if(radio.wasChecked){
+radio.checked=false;
+radio.wasChecked=false;
+}else{
+let radios=document.getElementsByName("opt");
+Array.from(radios).forEach(r=>r.wasChecked=false);radio.wasChecked=true;
+}
+}
+
+function saveNext(){
+let selected=document.querySelector("input[name=opt]:checked");
+
+if(selected){
+userAnswers[current]=parseInt(selected.value);
+document.getElementById("btn"+current).classList.add("answered");
+}
+
+if(current<questions.length-1){
+current++;
+loadQuestion();
+}else{
+submitExam();
+}
+}
+
+function buildPalette(){
+let html="";
+for(let i=0;i<questions.length;i++){
+html+=`<button id="btn${i}" onclick="go(${i})">${i+1}</button>`;
+}
+document.getElementById("palette").innerHTML=html;
+}
+
+function go(i){
+current=i;
+loadQuestion();
+}
+
+function startTimer(){
+timerInterval=setInterval(()=>{
+let m=Math.floor(time/60);
+let s=time%60;
+document.getElementById("timer").innerText=
+(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+time--;
+if(time<0){
+clearInterval(timerInterval);
+submitExam();
+}
+},1000);
+}
+
+function submitExam(){
+clearInterval(timerInterval); 
+document.getElementById("examArea").style.display="none";
+document.getElementById("resultBox").style.display="block";
+
+let score=0;
+let correctCount=0;
+let wrongCount=0;
+let attemptedCount=0;
+let notAttemptedCount=0;
+let analysis="";
+
+questions.forEach((q,i)=>{
+
+let correct=q.answer;
+let user=userAnswers[i];
+let marks=0;
+
+if(user!==undefined){
+attemptedCount++;
+if(user==correct){
+marks=4;
+score+=4;
+correctCount++;
+}else{
+marks=-1;
+score-=1;
+wrongCount++;
+}
+}else{
+notAttemptedCount++;
+}
+
+analysis+=`<div>
+<h4>Q${i+1}: ${q.question}</h4>`;
+
+q.options.forEach((opt,index)=>{
+
+let className="";
+
+if(user !== undefined){  
+
+    if(user == correct){  
+        if(index == correct){
+            className="correctOpt";  
+        }
+    }else{
+        if(index == user){
+            className="wrongOpt";     
+        }
+        if(index == correct){
+            className="correctOpt";   
+        }
+    }
+
+}else{
+    if(index == correct){
+        className="notAttemptYellow";   
+    }
+}
+
+analysis+=`<div class="${className}" style="padding:6px;margin:4px 0;border-radius:4px;">
+${opt}
+</div>`;
+
+});
+
+let markStyle="";
+if(marks==4){ markStyle="color:green;font-weight:bold"; }
+if(marks==-1){ markStyle="color:red;font-weight:bold"; }
+
+analysis+=`Marks: <span style="${markStyle}">${marks>0?"+4":marks}</span><hr></div>`;
+
+});
+
+document.getElementById("resultBox").innerHTML=
+`
+<h2>Total Score: ${score} / ${questions.length*4}</h2>
+
+<p><strong>Total Questions:</strong> ${questions.length}</p>
+<p><strong>Attempted:</strong> ${attemptedCount}</p>
+<p><strong>Not Attempted:</strong> ${notAttemptedCount}</p>
+<p style="color:green;"><strong>Correct:</strong> ${correctCount}</p>
+<p style="color:red;"><strong>Wrong:</strong> ${wrongCount}</p>
+
+<button onclick="location.reload()">Retake Test</button>
+<h3>Detailed Analysis:</h3>
+${analysis}
+`;
+}
+
+loadQuestion();
+buildPalette();
+startTimer();
+
+</script>
+
+</body>
+</html>
